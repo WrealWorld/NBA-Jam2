@@ -1,0 +1,111 @@
+import pygame
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Basketball Game")
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+ORANGE = (255, 165, 0)
+BROWN = (139, 69, 19)
+
+# Clock for controlling frame rate
+clock = pygame.time.Clock()
+FPS = 60
+
+# Basketball properties
+ball_radius = 15
+ball_x, ball_y = WIDTH // 2, HEIGHT // 2
+ball_dx, ball_dy = 5, -5
+
+# Hoop properties
+hoop_width, hoop_height = 100, 10
+hoop_x, hoop_y = WIDTH - 150, HEIGHT // 2 - 50
+
+# Player properties
+player_width, player_height = 20, 100
+player_x, player_y = 50, HEIGHT // 2 - player_height // 2
+player_speed = 7
+
+# Score
+score = 0
+
+# Font for text
+font = pygame.font.Font(None, 36)
+
+def draw_ball(x, y):
+    pygame.draw.circle(screen, ORANGE, (x, y), ball_radius)
+
+def draw_hoop(x, y):
+    pygame.draw.rect(screen, BROWN, (x, y, hoop_width, hoop_height))
+
+def draw_player(x, y):
+    pygame.draw.rect(screen, WHITE, (x, y, player_width, player_height))
+
+def display_score(score):
+    text = font.render(f"Score: {score}", True, WHITE)
+    screen.blit(text, (10, 10))
+
+# Game loop
+running = True
+while running:
+    screen.fill(BLACK)
+
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Player movement
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_UP] and player_y > 0:
+        player_y -= player_speed
+    if keys[pygame.K_DOWN] and player_y < HEIGHT - player_height:
+        player_y += player_speed
+
+    # Ball movement
+    ball_x += ball_dx
+    ball_y += ball_dy
+
+    # Ball collision with walls
+    if ball_y - ball_radius < 0 or ball_y + ball_radius > HEIGHT:
+        ball_dy = -ball_dy
+
+    # Ball collision with player
+    if (player_x < ball_x - ball_radius < player_x + player_width and
+            player_y < ball_y < player_y + player_height):
+        ball_dx = -ball_dx
+
+    # Ball scoring through the hoop
+    if (hoop_x < ball_x < hoop_x + hoop_width and
+            hoop_y < ball_y < hoop_y + hoop_height):
+        score += 1
+        ball_x, ball_y = WIDTH // 2, HEIGHT // 2
+        ball_dx, ball_dy = 5, -5
+
+    # Reset ball if it goes off-screen
+    if ball_x - ball_radius < 0:
+        ball_x, ball_y = WIDTH // 2, HEIGHT // 2
+        ball_dx, ball_dy = 5, -5
+
+    # Drawing everything
+    draw_ball(ball_x, ball_y)
+    draw_hoop(hoop_x, hoop_y)
+    draw_player(player_x, player_y)
+    display_score(score)
+
+    # Update the display
+    pygame.display.flip()
+
+    # Control frame rate
+    clock.tick(FPS)
+
+# Quit Pygame
+pygame.quit()
+sys.exit()
