@@ -10,7 +10,7 @@ let ball = {
   dx: 2, // Horizontal velocity
   dy: 0, // Vertical velocity
   gravity: 0.5, // Gravity force
-  bounce: -0.7, // Bounce effect
+  bounce: -1, // Consistent bounce factor
 };
 
 // Player properties
@@ -21,6 +21,14 @@ let player = {
   height: 20,
   dx: 5, // Speed for left/right movement
   rotation: 0, // Player rotation angle
+};
+
+// Hoop properties
+let hoop = {
+  x: canvas.width - 50,
+  y: canvas.height / 3,
+  width: 10,
+  height: 50,
 };
 
 // Keyboard controls
@@ -54,6 +62,17 @@ function updateBall() {
   // Right wall collision (out of bounds)
   if (ball.x + ball.radius > canvas.width) {
     resetBall(); // Reset the ball
+  }
+
+  // Hoop collision
+  if (
+    ball.x + ball.radius > hoop.x &&
+    ball.x - ball.radius < hoop.x + hoop.width &&
+    ball.y + ball.radius > hoop.y &&
+    ball.y - ball.radius < hoop.y + hoop.height
+  ) {
+    // Ball goes through the hoop
+    resetBall();
   }
 }
 
@@ -89,6 +108,12 @@ function drawPlayer() {
   ctx.restore();
 }
 
+// Draw the hoop
+function drawHoop() {
+  ctx.fillStyle = "orange";
+  ctx.fillRect(hoop.x, hoop.y, hoop.width, hoop.height);
+}
+
 // Main game loop
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -98,6 +123,7 @@ function gameLoop() {
 
   drawPlayer();
   drawBall();
+  drawHoop();
 
   requestAnimationFrame(gameLoop);
 }
